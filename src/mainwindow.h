@@ -31,6 +31,8 @@
 #include <QProcess>
 #include <QKeyEvent>
 #include <QDataWidgetMapper>
+#include <QSystemTrayIcon>
+#include <QAction>
 
 #include "commonlib.h"
 #include "passworddialog.h"
@@ -52,6 +54,8 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+
+    void setVisible(bool visible);
 
 protected:
     void closeEvent(QCloseEvent *event);
@@ -121,6 +125,10 @@ private slots:
 
     void on_pasteEntryAction_triggered();
 
+    void quitApplication();
+
+    void trayIconActivated(QSystemTrayIcon::ActivationReason reason);
+
 private:
     Ui::MainWindow *ui;
 
@@ -153,6 +161,18 @@ private:
 
     int catIndex;
 
+    QAction *minimizeAction;
+
+    QAction *maximizeAction;
+
+    QAction *restoreAction;
+
+    QAction *quitAction;
+
+    QSystemTrayIcon *trayIcon;
+
+    QMenu *trayIconMenu;
+
     int showDeleteConfirmationBox(QString title);
 
     void writeSettings();
@@ -172,6 +192,10 @@ private:
     QString cryptPass(QString Pass);
 
     QString decryptPass();
+
+    void createActions();
+
+    void createTrayIcon();
 
 };
 

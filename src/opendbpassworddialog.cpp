@@ -31,6 +31,7 @@ OpenDbPasswordDialog::OpenDbPasswordDialog(QString conName, QWidget *parent) :
 {
     ui->setupUi(this);
     layout()->setSizeConstraint(QLayout::SetFixedSize);
+    ui->passwordEdit->setFocus();
     connectionName = conName;
 
     QSettings settings("compass", "compass");

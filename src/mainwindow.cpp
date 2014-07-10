@@ -36,12 +36,17 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->mainSplitter->setStretchFactor(ui->mainSplitter->indexOf(ui->categoryView),1);
     ui->mainSplitter->setStretchFactor(ui->mainSplitter->indexOf(ui->entryView),2);
 
+    createActions();
+    createTrayIcon();
+
+
     readSettings();
 
     createCategoryModelView();
     createEntryModelView();
     updateEntryView();
     updateCategoryView();
+
 
     ui->entryView->setContextMenuPolicy(Qt::CustomContextMenu);
     ui->categoryView->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -54,10 +59,16 @@ MainWindow::MainWindow(QWidget *parent) :
             SIGNAL(customContextMenuRequested(QPoint)),
             this, SLOT(displayCategoryViewContextMenu(QPoint)));
 
+    connect(trayIcon,
+            SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
+            this, SLOT(trayIconActivated(QSystemTrayIcon::ActivationReason)));
+
 
     if (! recentFile.isEmpty()) {
         on_openDatabaseAction_triggered();
+        trayIcon->show();
     }
+
 }
 
 MainWindow::~MainWindow()
@@ -68,9 +79,17 @@ MainWindow::~MainWindow()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    writeSettings();
-    event->accept();
+    if (!QSystemTrayIcon::isSystemTrayAvailable()) {
+        quitApplication();
+    }
+    else {
+        if (trayIcon->isVisible()) {
+            hide();
+            event->ignore();
+        }
+    }
 }
+
 
 void MainWindow::readSettings()
 {
@@ -102,7 +121,7 @@ void MainWindow::writeSettings()
 
 void MainWindow::on_exitAction_triggered()
 {
-    this->close();
+    quitApplication();
 }
 
 void MainWindow::on_newDatabaseAction_triggered()
@@ -634,7 +653,7 @@ void MainWindow::on_aboutAction_triggered()
     QMessageBox::about(this, tr("About"), tr(
                            "Compass is a password manager to keep your sensitive data as encrypted form.\n\n"
                            "Copyright (C) 2011 - 2014  Sinan Ceylan\n"
-                           "Version 1.0\n\n"
+                           "Version 1.1\n\n"
 
                            "This program is free software: you can redistribute it and/or modify\n"
                            "it under the terms of the GNU General Public License as published by\n"
@@ -796,4 +815,61 @@ void MainWindow::on_pasteEntryAction_triggered()
             updateEntryView();
         }
     }
+}
+
+void MainWindow::createActions()
+{
+    minimizeAction = new QAction(tr("Mi&nimize"), this);
+    connect(minimizeAction, SIGNAL(triggered()), this, SLOT(hide()));
+
+    maximizeAction = new QAction(tr("Ma&ximize"), this);
+    connect(maximizeAction, SIGNAL(triggered()), this, SLOT(showMaximized()));
+
+    restoreAction = new QAction(tr("&Restore"), this);
+    connect(restoreAction, SIGNAL(triggered()), this, SLOT(showNormal()));
+
+    quitAction = new QAction(tr("&Quit"), this);
+    connect(quitAction, SIGNAL(triggered()), this, SLOT(quitApplication()));
+}
+
+void MainWindow::quitApplication()
+{
+    writeSettings();
+    qApp->quit();
+}
+
+void MainWindow::createTrayIcon()
+{
+    trayIconMenu = new QMenu(this);
+    trayIconMenu->addAction(minimizeAction);
+    trayIconMenu->addAction(maximizeAction);
+    trayIconMenu->addAction(restoreAction);
+    trayIconMenu->addSeparator();
+    trayIconMenu->addAction(quitAction);
+
+    trayIcon = new QSystemTrayIcon(this);
+
+    trayIcon->setIcon(QIcon(":/icon-32.png"));
+    trayIcon->setContextMenu(trayIconMenu);
+
+    trayIcon->setToolTip(QMainWindow::windowTitle());
+}
+
+void MainWindow::trayIconActivated(QSystemTrayIcon::ActivationReason reason)
+{
+    switch (reason) {
+    case QSystemTrayIcon::Trigger:
+        setHidden(! isHidden());
+        break;
+    default:
+        ;
+    }
+}
+
+void MainWindow::setVisible(bool visible)
+{
+    minimizeAction->setEnabled(visible);
+    maximizeAction->setEnabled(!isMaximized());
+    restoreAction->setEnabled(isMaximized() || !visible);
+    QMainWindow::setVisible(visible);
 }

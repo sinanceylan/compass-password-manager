@@ -51,3 +51,6 @@ FORMS    += mainwindow.ui \
     importdialog.ui \
     optionsdialog.ui \
     generatepassworddialog.ui
+
+RESOURCES += \
+    compass.qrc

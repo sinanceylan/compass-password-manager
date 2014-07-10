@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>Compass Password Manager</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="compass.qrc">
+    <normaloff>:/icon-128.png</normaloff>:/icon-128.png</iconset>
+  </property>
   <property name="styleSheet">
    <string notr="true"/>
   </property>
@@ -213,6 +217,9 @@
   <action name="exitAction">
    <property name="text">
     <string>E&amp;xit</string>
+   </property>
+   <property name="toolTip">
+    <string>Exit</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Q</string>
@@ -455,6 +462,8 @@
   <tabstop>categoryView</tabstop>
   <tabstop>entryView</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="compass.qrc"/>
+ </resources>
  <connections/>
 </ui>
