@@ -452,14 +452,21 @@ void MainWindow::displayEntryViewContextMenu(const QPoint &point)
 
         QAction* selectedItem = cellMenu.exec(ui->entryView->viewport()->mapToGlobal(point));
 
-        if (selectedItem && (selectedItem->text().startsWith("ssh", Qt::CaseInsensitive) || selectedItem->text().startsWith("http", Qt::CaseInsensitive) || selectedItem->text().startsWith("term", Qt::CaseInsensitive))) {
+        QString itemText;
+        itemText = selectedItem->text();
+        if (itemText.startsWith("&")) {
+            itemText = itemText.remove(0,1);
+        }
 
+//        if (selectedItem && (selectedItem->text().startsWith("ssh", Qt::CaseInsensitive) || selectedItem->text().startsWith("http", Qt::CaseInsensitive) || selectedItem->text().startsWith("term", Qt::CaseInsensitive))) {
+        if (selectedItem && (itemText.startsWith("ssh", Qt::CaseInsensitive) || itemText.startsWith("http", Qt::CaseInsensitive) || itemText.startsWith("term", Qt::CaseInsensitive))) {
             int passwordFieldIndex = entryModel->fieldIndex("password");
             int usernameFieldIndex = entryModel->fieldIndex("username");
 
             QString username = entryModel->data(entryModel->index(index.row(),usernameFieldIndex)).toString();
             QString password = entryModel->data(entryModel->index(index.row(),passwordFieldIndex)).toString();
-            QString address = selectedItem->text();
+//            QString address = selectedItem->text();
+            QString address = itemText;
 
             address.replace("<USER>", username, Qt::CaseInsensitive);
             address.replace("<PASS>", username, Qt::CaseInsensitive);
@@ -652,8 +659,8 @@ void MainWindow::on_aboutAction_triggered()
 {    
     QMessageBox::about(this, tr("About"), tr(
                            "Compass is a password manager to keep your sensitive data as encrypted form.\n\n"
-                           "Copyright (C) 2011 - 2014  Sinan Ceylan\n"
-                           "Version 1.1\n\n"
+                           "Copyright (C) 2011 - 2016  Sinan Ceylan\n"
+                           "Version 1.1.1\n\n"
 
                            "This program is free software: you can redistribute it and/or modify\n"
                            "it under the terms of the GNU General Public License as published by\n"
